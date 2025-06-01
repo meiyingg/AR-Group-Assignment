@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using System;
 
 public class DebugLogger : MonoBehaviour
-{
-    public Text debugText;               // UI Text组件用于显示日志
-    public int fontSize = 24;            // 字体大小
-    public int maxMessages = 20;         // 最多显示的消息数量
-    public bool showTimestamp = true;    // 是否显示时间戳
-    public Color normalColor = Color.white;      // 普通日志颜色
-    public Color warningColor = Color.yellow;    // 警告日志颜色
-    public Color errorColor = Color.red;         // 错误日志颜色
+{    public Text debugText;               // UI Text component for displaying logs
+    public int fontSize = 24;            // Font size
+    public int maxMessages = 20;         // Maximum number of messages to display
+    public bool showTimestamp = true;    // Whether to show timestamp
+    public Color normalColor = Color.white;      // Normal log color
+    public Color warningColor = Color.yellow;    // Warning log color
+    public Color errorColor = Color.red;         // Error log color
 
     private static DebugLogger instance;
     private Queue<LogMessage> logMessages;
@@ -34,9 +33,7 @@ public class DebugLogger : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
-            logMessages = new Queue<LogMessage>();
-
-            // 设置文本组件的初始属性
+            logMessages = new Queue<LogMessage>();            // Set initial properties for text component
             if (debugText != null)
             {
                 debugText.fontSize = fontSize;
@@ -45,18 +42,16 @@ public class DebugLogger : MonoBehaviour
                 debugText.alignment = TextAnchor.UpperLeft;
             }
             
-            // 添加初始化信息
-            AddLog("调试日志系统已启动");
-            AddLog($"屏幕分辨率: {Screen.width}x{Screen.height}");
-            AddLog($"系统信息: {SystemInfo.operatingSystem}");
-            AddLog($"设备型号: {SystemInfo.deviceModel}");
+            // Add initialization information
+            AddLog("Debug log system started");
+            AddLog($"Screen resolution: {Screen.width}x{Screen.height}");
+            AddLog($"System info: {SystemInfo.operatingSystem}");
+            AddLog($"Device model: {SystemInfo.deviceModel}");
         }
         else
         {
             Destroy(gameObject);
-        }
-
-        // 注册Unity的日志回调
+        }        // Register Unity's log callback
         Application.logMessageReceived += HandleLog;
     }
 
@@ -121,28 +116,26 @@ public class DebugLogger : MonoBehaviour
             default:
                 return $"<color=#{ColorUtility.ToHtmlStringRGB(normalColor)}>";
         }
-    }
-
-    // 清除日志
+    }    // Clear logs
     public void ClearLogs()
     {
         logMessages.Clear();
         UpdateDebugText();
     }
     
-    // 添加分隔线
+    // Add separator
     public void AddSeparator()
     {
         AddLog("----------------------------------------", LogType.Log);
     }
     
-    // 添加警告信息
+    // Add warning message
     public void AddWarning(string message)
     {
         AddLog(message, LogType.Warning);
     }
     
-    // 添加错误信息
+    // Add error message
     public void AddError(string message)
     {
         AddLog(message, LogType.Error);

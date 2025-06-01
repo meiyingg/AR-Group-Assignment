@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class ColorPicker : MonoBehaviour
 {
     public List<Button> colorButtons;
-    private Color currentColor = Color.yellow; // Ä¬ÈÏÑÕÉ«
+    private Color currentColor = Color.yellow; // Default color
 
     void Start()
     {

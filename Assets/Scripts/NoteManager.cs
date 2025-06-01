@@ -27,16 +27,15 @@ public class NoteManager : MonoBehaviour
     public Button cancelButton;
     public GameObject noteUI;
     public ColorPicker colorPicker;
-    
-    [Header("增强功能UI")]
-    public Button toggleVisibilityButton; // 显示/隐藏所有便签按钮
-    public TMP_InputField annotationInputField; // 注释输入框
+      [Header("Enhanced Features UI")]
+    public Button toggleVisibilityButton; // Button to show/hide all notes
+    public TMP_InputField annotationInputField; // Annotation input field
 
     [Header("Raycast Settings")]
     public float maxRaycastDistance = 10f;
     public float touchRadius = 0.1f; 
     public bool debugRaycast = true;
-    private int noteLayerMask; // 用于射线检测Notes层的掩码
+    private int noteLayerMask; // Layer mask for Notes layer raycasting
 
     private List<Note> activeNotes = new List<Note>();
     private Camera arCamera;
@@ -60,9 +59,8 @@ public class NoteManager : MonoBehaviour
             Destroy(gameObject);
         
         arCamera = Camera.main;
-        noteLayerMask = 1 << 6; // 设置Notes层(Layer 6)的掩码
-        Initialize();
-    }    // 记录所有便签是否可见
+        noteLayerMask = 1 << 6; // Set Notes layer (Layer 6) mask
+        Initialize();    }    // Track if all notes are visible
     private bool allNotesVisible = true;
     
     void Initialize()
@@ -79,8 +77,7 @@ public class NoteManager : MonoBehaviour
             noteUI.SetActive(false);
         else
             DebugLogger.Instance?.AddLog("Error: noteUI not found");
-            
-        // 初始化增强功能UI
+              // Initialize enhanced features UI
         if (toggleVisibilityButton != null)
         {
             toggleVisibilityButton.onClick.AddListener(ToggleAllNotesVisibility);
@@ -105,37 +102,34 @@ public class NoteManager : MonoBehaviour
     }
 
     void Update()
-    {
-        // Debug射线
+    {        // Debug ray
         if (debugRaycast && arCamera != null)
         {
             Debug.DrawRay(arCamera.transform.position, arCamera.transform.forward * maxRaycastDistance, Color.red);
         }
 
-        // 处理触摸输入
+        // Handle touch input
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
             touchPosition = touch.position;
 
             if (touch.phase == TouchPhase.Began)
-            {
-                // 1. 当前正在编辑或创建时，不处理新的触摸
+            {                // 1. If currently editing or creating, ignore new touches
                 if (currentUIState != UIState.None) 
                 {
                     DebugLogger.Instance?.AddLog($"Ignoring touch - current state: {currentUIState}");
                     return;
                 }
 
-                // 2. 检查Note点击
+                // 2. Check for Note click
                 Ray ray = arCamera.ScreenPointToRay(touchPosition);
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit, maxRaycastDistance, noteLayerMask))
                 {
                     Note note = hit.collider.GetComponent<Note>();
                     if (note != null)
-                    {
-                        // 检查是否点击了UI按钮
+                    {                        // Check if UI button was clicked
                         if (CheckUIClick(touchPosition, out bool clickedMainUI))
                         {
                             if (clickedMainUI)
@@ -148,16 +142,14 @@ public class NoteManager : MonoBehaviour
                         SelectNote(note);
                         return;
                     }
-                }
-
-                // 3. 检查主UI点击
+                }                // 3. Check for main UI click
                 if (CheckUIClick(touchPosition, out bool hitMainUI) && hitMainUI)
                 {
                     DebugLogger.Instance?.AddLog("Main UI clicked, skipping raycast");
                     return;
                 }
 
-                // 4. 如果没有其他交互，尝试创建新Note
+                // 4. If no other interaction, try to create new Note
                 List<ARRaycastHit> arHits = new List<ARRaycastHit>();
                 if (raycastManager.Raycast(touchPosition, arHits, TrackableType.Planes))
                 {
@@ -189,8 +181,7 @@ public class NoteManager : MonoBehaviour
         foreach (var result in results)
         {
             if (result.gameObject != null)
-            {
-                // 检查是否是主UI Canvas的元素
+            {                // Check if it's an element of the main UI Canvas
                 if (result.gameObject.transform.IsChildOf(mainCanvas.transform))
                 {
                     hitMainUI = true;
@@ -226,27 +217,25 @@ public class NoteManager : MonoBehaviour
         noteUI.SetActive(false);
         UpdateCreateButtonText("Create");
     }    private void ShowCreateNoteUI()
-    {
-        // 确保UI组件都存在
+    {        // Ensure UI components exist
         if (noteUI == null || noteInputField == null)
         {
             DebugLogger.Instance?.AddLog("Error: Required UI components are missing");
             return;
         }
 
-        // 如果已经在创建状态，不要重复初始化
+        // If already in creation state, don't initialize again
         if (currentUIState == UIState.Creating)
         {
             return;
         }
 
-        // 如果正在编辑，先保存
+        // If currently editing, save first
         if (currentUIState == UIState.Editing && selectedNote != null)
         {
             SaveCurrentNote();
         }
-        
-        // 设置创建状态
+          // Set creation state
         currentUIState = UIState.Creating;
         noteUI.SetActive(true);
         noteInputField.text = "";
@@ -261,28 +250,24 @@ public class NoteManager : MonoBehaviour
             selectedNote.SetContent(noteInputField.text);
             if (colorPicker != null)
                 selectedNote.SetColor(colorPicker.CurrentColor);
-                
-            // 保存注释（如果有）
+                  // Save annotation (if any)
             if (annotationInputField != null && !string.IsNullOrEmpty(annotationInputField.text))
             {
                 selectedNote.SetAnnotation(annotationInputField.text);
-                DebugLogger.Instance?.AddLog($"保存注释: {annotationInputField.text}");
+                DebugLogger.Instance?.AddLog($"Saved annotation: {annotationInputField.text}");
             }
             
-            DebugLogger.Instance?.AddLog($"保存笔记更改: {noteInputField.text}");
+            DebugLogger.Instance?.AddLog($"Saved note changes: {noteInputField.text}");
         }
-    }public void OnCreateNoteConfirmed()
-    {
-        // 先检查所需组件
+    }public void OnCreateNoteConfirmed()    {
+        // First check required components
         if (noteInputField == null)
         {
             DebugLogger.Instance?.AddLog("Error: Note input field is missing");
             return;
         }
 
-        DebugLogger.Instance?.AddLog($"Creating note with state: {currentUIState}, position: {placementPosition}");
-
-        // 检查状态和位置
+        DebugLogger.Instance?.AddLog($"Creating note with state: {currentUIState}, position: {placementPosition}");        // Check state and position
         if (currentUIState != UIState.Creating)
         {
             DebugLogger.Instance?.AddLog("Error: Not in note creation state. Current state: " + currentUIState);
@@ -293,9 +278,7 @@ public class NoteManager : MonoBehaviour
         {
             DebugLogger.Instance?.AddLog("Error: Invalid placement position");
             return;
-        }
-
-        // 获取并验证输入内容
+        }        // Get and validate input content
         string noteText = noteInputField.text?.Trim();
         if (string.IsNullOrEmpty(noteText))
         {
@@ -400,9 +383,7 @@ public class NoteManager : MonoBehaviour
             activeNotes.Remove(note);
             note.Delete();
         }
-    }
-
-    // 切换所有便签的可见性
+    }    // Toggle visibility of all notes
     public void ToggleAllNotesVisibility()
     {
         allNotesVisible = !allNotesVisible;
@@ -416,10 +397,9 @@ public class NoteManager : MonoBehaviour
         }
         
         UpdateToggleVisibilityButtonText();
-        DebugLogger.Instance?.AddLog($"所有便签可见性设置为: {allNotesVisible}");
+        DebugLogger.Instance?.AddLog($"All notes visibility set to: {allNotesVisible}");
     }
-    
-    // 更新显示/隐藏按钮文本
+      // Update show/hide button text
     private void UpdateToggleVisibilityButtonText()
     {
         if (toggleVisibilityButton != null)
@@ -440,9 +420,7 @@ public class NoteManager : MonoBehaviour
             new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current);
         eventData.position = position;
         List<UnityEngine.EventSystems.RaycastResult> results = new List<UnityEngine.EventSystems.RaycastResult>();
-        UnityEngine.EventSystems.EventSystem.current.RaycastAll(eventData, results);
-
-        // 直接返回是否有UI点击，不做复杂过滤
+        UnityEngine.EventSystems.EventSystem.current.RaycastAll(eventData, results);        // Directly return whether there are any UI clicks, no complex filtering
         return results.Count > 0;
     }
 

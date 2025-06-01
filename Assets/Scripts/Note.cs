@@ -10,78 +10,69 @@ public class NoteData
     public Quaternion rotation;
     public Color color;
     public bool isVisible = true;
-    public string annotation = ""; // 单条注释
+    public string annotation = ""; // Single annotation
 }
 
 public class Note : MonoBehaviour
 {
     public TMP_Text contentText;        // TextMeshPro UI reference
     public Image backgroundImage;        // Note background image
-    public TMP_Text annotationText;     // 注释文本显示
+    public TMP_Text annotationText;     // Annotation text display
     public NoteData data;               // Note data
 
     private BoxCollider noteCollider;
-    private RectTransform contentRectTransform;
-    private float minColliderSize = 0.1f; // 最小碰撞体尺寸
-    private Vector2 padding = new Vector2(0.15f, 0.15f); // 碰撞体边距
+    private RectTransform contentRectTransform;    private float minColliderSize = 0.1f; // Minimum collider size
+    private Vector2 padding = new Vector2(0.15f, 0.15f); // Collider padding
 
     private void Awake()
     {
         if (data == null)
             data = new NoteData();
-        
-        // 确保默认值
+          // Ensure default values
         data.color = Color.yellow;
         data.position = transform.position;
-        data.rotation = transform.rotation;
-
-        // 获取RectTransform
+        data.rotation = transform.rotation;        // Get RectTransform
         contentRectTransform = contentText?.GetComponent<RectTransform>();
         
-        // 设置碰撞体
+        // Set up collider
         noteCollider = GetComponent<BoxCollider>();
         if (noteCollider == null)
         {
             noteCollider = gameObject.AddComponent<BoxCollider>();
             DebugLogger.Instance?.AddLog("Added BoxCollider to Note");
         }
-        
-        // 确保碰撞体设置正确
+          // Ensure collider is set up correctly
         noteCollider.isTrigger = false;
         
-        // 初始化碰撞体尺寸
+        // Initialize collider size
         UpdateColliderSize();
         
         DebugLogger.Instance?.AddLog($"Note initialized with collider: {noteCollider.size}");
-    }
-
-    private void OnValidate()
+    }    private void OnValidate()
     {
-        // 在编辑器中修改内容时更新碰撞体
+        // Update collider when content is modified in the editor
         UpdateColliderSize();
     }
 
     private void UpdateColliderSize()
     {
         if (contentRectTransform != null && noteCollider != null)
-        {
-            // 获取Canvas和背景图的RectTransform
+        {            // Get Canvas and background image RectTransform
             RectTransform bgRectTransform = backgroundImage?.GetComponent<RectTransform>();
             
             if (bgRectTransform != null)
             {
-                // 使用背景图的尺寸作为基准
+                // Use background image size as reference
                 Vector2 bgSize = bgRectTransform.rect.size;
                 float worldWidth = bgRectTransform.lossyScale.x * bgSize.x;
                 float worldHeight = bgRectTransform.lossyScale.y * bgSize.y;
-                
-                // 增加边距以便更容易点击
+                  // Add padding to make it easier to click
                 worldWidth = Mathf.Max(worldWidth + padding.x, minColliderSize);
                 worldHeight = Mathf.Max(worldHeight + padding.y, minColliderSize);
                 
-                // 设置碰撞体大小，增加深度以便射线检测
+                // Set collider size, add depth for raycast detection
                 Vector3 newSize = new Vector3(worldWidth, worldHeight, 0.05f);
-                Vector3 newCenter = new Vector3(0, 0, -0.025f); // 碰撞体居中，稍微向前偏移
+                Vector3 newCenter = new Vector3(0, 0, -0.025f); // Center collider, slightly offset forward
                 
                 if (noteCollider.size != newSize || noteCollider.center != newCenter)
                 {
@@ -91,8 +82,7 @@ public class Note : MonoBehaviour
                 }
             }
             else
-            {
-                // 如果没有背景图，使用固定大小
+            {                // If no background image, use fixed size
                 Vector3 defaultSize = new Vector3(0.5f, 0.5f, 0.05f);
                 noteCollider.size = defaultSize;
                 noteCollider.center = new Vector3(0, 0, -0.025f);
@@ -106,8 +96,7 @@ public class Note : MonoBehaviour
         data.content = content;
         if (contentText != null)
         {
-            contentText.text = content;
-            // 内容改变后更新碰撞体尺寸
+            contentText.text = content;            // Update collider size after content change
             UpdateColliderSize();
         }
     }
@@ -122,35 +111,29 @@ public class Note : MonoBehaviour
     public void Delete()
     {
         Destroy(gameObject);
-    }
-
-    // 设置便签可见性
+    }    // Set note visibility
     public void SetVisible(bool isVisible)
     {
         data.isVisible = isVisible;
         gameObject.SetActive(isVisible);
     }
 
-    // 切换便签可见性
+    // Toggle note visibility
     public void ToggleVisibility()
     {
         SetVisible(!data.isVisible);
-    }
-
-    // 设置注释
+    }    // Set annotation
     public void SetAnnotation(string annotationText)
     {
         data.annotation = annotationText;
         UpdateAnnotationDisplay();
     }
 
-    // 获取注释
+    // Get annotation
     public string GetAnnotation()
     {
         return data.annotation;
-    }
-
-    // 更新注释显示
+    }    // Update annotation display
     private void UpdateAnnotationDisplay()
     {
         if (annotationText != null)
@@ -158,9 +141,7 @@ public class Note : MonoBehaviour
             annotationText.text = data.annotation;
             annotationText.gameObject.SetActive(!string.IsNullOrEmpty(data.annotation));
         }
-    }
-
-    // 从数据中恢复便签状态（包括注释和可见性）
+    }    // Restore note state from data (including annotation and visibility)
     public void RestoreFromData(NoteData savedData)
     {
         data = savedData;
@@ -169,16 +150,14 @@ public class Note : MonoBehaviour
         if (backgroundImage != null)
             backgroundImage.color = data.color;
         if (annotationText != null)
-            UpdateAnnotationDisplay();
-
-        // 设置位置和旋转
+            UpdateAnnotationDisplay();        // Set position and rotation
         transform.position = data.position;
         transform.rotation = data.rotation;
 
-        // 设置可见性
+        // Set visibility
         gameObject.SetActive(data.isVisible);
 
-        // 更新碰撞体
+        // Update collider
         UpdateColliderSize();
     }
 }
