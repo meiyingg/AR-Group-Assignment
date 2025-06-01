@@ -30,6 +30,12 @@ public class NoteManager : MonoBehaviour
     public GameObject noteUI;
     public ColorPicker colorPicker;
 
+    [Header("Raycast Settings")]
+    public float maxRaycastDistance = 10f;
+    public float touchRadius = 0.1f; 
+    public bool debugRaycast = true;
+    private int noteLayerMask; // 用于射线检测Notes层的掩码
+
     private List<Note> activeNotes = new List<Note>();
     private Camera arCamera;
     private Vector2 touchPosition;
@@ -52,13 +58,17 @@ public class NoteManager : MonoBehaviour
             Destroy(gameObject);
         
         arCamera = Camera.main;
+        noteLayerMask = 1 << 6; // 设置Notes层(Layer 6)的掩码
         Initialize();
     }
 
     void Initialize()
     {
         if (createButton != null)
-            createButton.onClick.AddListener(OnCreateNoteConfirmed);
+        {
+            createButton.onClick.AddListener(OnCreateOrSaveButtonClicked);
+            UpdateCreateButtonText("Create");
+        }
         if (cancelButton != null)
             cancelButton.onClick.AddListener(OnCreateNoteCanceled);
 
@@ -82,68 +92,117 @@ public class NoteManager : MonoBehaviour
             DebugLogger.Instance?.AddLog("Error: colorPicker not found");
 
         DebugLogger.Instance?.AddLog("NoteManager initialized");
-    }    void Update()
+    }
+
+    void Update()
     {
-        // 只在没有进行中的操作时处理触摸
-        if (Input.touchCount > 0 && currentUIState == UIState.None)
+        // Debug射线
+        if (debugRaycast && arCamera != null)
+        {
+            Debug.DrawRay(arCamera.transform.position, arCamera.transform.forward * maxRaycastDistance, Color.red);
+        }
+
+        // 处理触摸输入
+        if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
             touchPosition = touch.position;
-            
+
             if (touch.phase == TouchPhase.Began)
             {
-                // 检查是否点击了UI
-                if (IsPointerOverUI(touch.position))
+                // 1. 当前正在编辑或创建时，不处理新的触摸
+                if (currentUIState != UIState.None) 
                 {
+                    DebugLogger.Instance?.AddLog($"Ignoring touch - current state: {currentUIState}");
                     return;
                 }
-                
-                // 先检查是否点击了已有的笔记
+
+                // 2. 检查Note点击
                 Ray ray = arCamera.ScreenPointToRay(touchPosition);
                 RaycastHit hit;
-                
-                if (Physics.Raycast(ray, out hit))
+                if (Physics.Raycast(ray, out hit, maxRaycastDistance, noteLayerMask))
                 {
-                    Note hitNote = hit.collider.GetComponent<Note>();
-                    if (hitNote != null)
+                    Note note = hit.collider.GetComponent<Note>();
+                    if (note != null)
                     {
-                        SelectNote(hitNote);
-                        DebugLogger.Instance?.AddLog($"Selected note: {hitNote.data.content}");
+                        // 检查是否点击了UI按钮
+                        if (CheckUIClick(touchPosition, out bool clickedMainUI))
+                        {
+                            if (clickedMainUI)
+                            {
+                                DebugLogger.Instance?.AddLog("Main UI clicked, skipping raycast");
+                                return;
+                            }
+                        }
+                        
+                        SelectNote(note);
                         return;
                     }
                 }
 
-                // 如果没有点击已有笔记，尝试在平面上创建新笔记
-                List<ARRaycastHit> hits = new List<ARRaycastHit>();
-                if (raycastManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon))
+                // 3. 检查主UI点击
+                if (CheckUIClick(touchPosition, out bool hitMainUI) && hitMainUI)
                 {
-                    ARRaycastHit arHit = hits[0];
-                    // 使用射线命中点的确切位置
-                    placementPosition = arHit.pose.position;
-                      // 计算从笔记到相机的方向向量
-                    Vector3 directionToCamera = arCamera.transform.position - placementPosition;
-                    directionToCamera.y = 0; // 保持垂直方向
-                    
-                    // 确保Note朝向相机
-                    if (directionToCamera != Vector3.zero)
-                    {
-                        // 添加负号，让Note面向相机
-                        placementRotation = Quaternion.LookRotation(-directionToCamera.normalized, Vector3.up);
-                    }
-                    else
-                    {
-                        // 如果正上方点击，使用相机的Y轴旋转的反方向
-                        placementRotation = Quaternion.Euler(0, arCamera.transform.rotation.eulerAngles.y + 180f, 0);
-                    }
-                    
+                    DebugLogger.Instance?.AddLog("Main UI clicked, skipping raycast");
+                    return;
+                }
+
+                // 4. 如果没有其他交互，尝试创建新Note
+                List<ARRaycastHit> arHits = new List<ARRaycastHit>();
+                if (raycastManager.Raycast(touchPosition, arHits, TrackableType.Planes))
+                {
+                    placementPosition = arHits[0].pose.position;
+                    Vector3 cameraForward = arCamera.transform.forward;
+                    cameraForward.y = 0;
+                    placementRotation = cameraForward != Vector3.zero ? 
+                        Quaternion.LookRotation(cameraForward, Vector3.up) :
+                        Quaternion.identity;
                     ShowCreateNoteUI();
-                    DebugLogger.Instance?.AddLog("Ready to create new note at touch position");
+                }
+            }
+        }
+    }
+
+    private bool CheckUIClick(Vector2 position, out bool hitMainUI)
+    {
+        hitMainUI = false;
+        if (mainCanvas == null) return false;
+
+        UnityEngine.EventSystems.PointerEventData eventData = 
+            new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current);
+        eventData.position = position;
+        List<UnityEngine.EventSystems.RaycastResult> results = new List<UnityEngine.EventSystems.RaycastResult>();
+        UnityEngine.EventSystems.EventSystem.current.RaycastAll(eventData, results);
+
+        bool hitAnyUI = false;
+
+        foreach (var result in results)
+        {
+            if (result.gameObject != null)
+            {
+                // 检查是否是主UI Canvas的元素
+                if (result.gameObject.transform.IsChildOf(mainCanvas.transform))
+                {
+                    hitMainUI = true;
+                    hitAnyUI = true;
+                    DebugLogger.Instance?.AddLog($"Hit main UI: {result.gameObject.name}");
                 }
                 else
                 {
-                    DebugLogger.Instance?.AddLog("No valid placement surface detected");
+                    hitAnyUI = true;
+                    DebugLogger.Instance?.AddLog($"Hit other UI: {result.gameObject.name}");
                 }
             }
+        }
+
+        return hitAnyUI;
+    }
+
+    private void UpdateCreateButtonText(string text)
+    {
+        if (createButton != null && createButton.GetComponentInChildren<TMP_Text>() != null)
+        {
+            createButton.GetComponentInChildren<TMP_Text>().text = text;
         }
     }
 
@@ -155,6 +214,7 @@ public class NoteManager : MonoBehaviour
         placementRotation = Quaternion.identity;
         currentUIState = UIState.None;
         noteUI.SetActive(false);
+        UpdateCreateButtonText("Create");
     }    private void ShowCreateNoteUI()
     {
         // 确保UI组件都存在
@@ -181,6 +241,7 @@ public class NoteManager : MonoBehaviour
         noteUI.SetActive(true);
         noteInputField.text = "";
         noteInputField.ActivateInputField();
+        UpdateCreateButtonText("Create");
         
         DebugLogger.Instance?.AddLog($"Ready to create new note at position: {placementPosition}");
     }
@@ -253,37 +314,23 @@ public class NoteManager : MonoBehaviour
 
     public void OnCreateNoteCanceled()
     {
-        if (currentUIState == UIState.Creating)
+        if (currentUIState == UIState.Creating || currentUIState == UIState.Editing)
         {
             ClearUIState();
-            DebugLogger.Instance?.AddLog("Note creation cancelled");
-        }
-        else if (currentUIState == UIState.Editing)
-        {
-            SaveCurrentNote();
-            ClearUIState();
-            DebugLogger.Instance?.AddLog("Exited edit mode");
+            DebugLogger.Instance?.AddLog($"Cancelled {currentUIState} operation");
         }
     }
 
     private void SelectNote(Note note)
     {
-        // 如果当前正在创建新笔记，忽略选择
-        if (currentUIState == UIState.Creating)
-        {
-            DebugLogger.Instance?.AddLog("请先完成当前笔记的创建");
-            return;
-        }
-
-        // 如果正在编辑其他笔记，先保存
-        if (currentUIState == UIState.Editing && selectedNote != null)
-        {
-            SaveCurrentNote();
-        }
+        if (note == null) return;
 
         selectedNote = note;
         currentUIState = UIState.Editing;
+        UpdateCreateButtonText("Save");
         ShowNoteDetails(note);
+        
+        DebugLogger.Instance?.AddLog($"Selected note for editing: {note.data.content}");
     }
 
     private void ShowNoteDetails(Note note)
@@ -293,6 +340,26 @@ public class NoteManager : MonoBehaviour
             noteUI.SetActive(true);
             noteInputField.text = note.data.content;
             noteInputField.ActivateInputField();
+            
+            // Update color picker if available
+            if (colorPicker != null)
+            {
+                colorPicker.SetCurrentColor(note.data.color);
+            }
+        }
+    }
+
+    public void OnCreateOrSaveButtonClicked()
+    {
+        if (currentUIState == UIState.Editing)
+        {
+            SaveCurrentNote();
+            ClearUIState();
+            DebugLogger.Instance?.AddLog("Note changes saved");
+        }
+        else if (currentUIState == UIState.Creating)
+        {
+            OnCreateNoteConfirmed();
         }
     }
 
@@ -315,33 +382,27 @@ public class NoteManager : MonoBehaviour
         }
     }
 
-    public void SaveAllNotes()
-    {
-        foreach (Note note in activeNotes)
-        {
-            note.UpdateTransform();
-        }
-    }
-
     private bool IsPointerOverUI(Vector2 position)
     {
         if (mainCanvas == null) return false;
 
-        // 将触摸位置转换为Canvas上的位置
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            mainCanvas.GetComponent<RectTransform>(),
-            position,
-            mainCanvas.worldCamera,
-            out Vector2 localPoint
-        );
-
-        // 检查是否点击了UI元素
-        UnityEngine.EventSystems.PointerEventData eventDataCurrentPosition 
-            = new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current);
-        eventDataCurrentPosition.position = position;
+        UnityEngine.EventSystems.PointerEventData eventData = 
+            new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current);
+        eventData.position = position;
         List<UnityEngine.EventSystems.RaycastResult> results = new List<UnityEngine.EventSystems.RaycastResult>();
-        UnityEngine.EventSystems.EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+        UnityEngine.EventSystems.EventSystem.current.RaycastAll(eventData, results);
 
+        // 直接返回是否有UI点击，不做复杂过滤
         return results.Count > 0;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (debugRaycast && arCamera != null)
+        {
+            Gizmos.color = Color.yellow;
+            Ray ray = arCamera.ScreenPointToRay(touchPosition);
+            Gizmos.DrawRay(ray.origin, ray.direction * maxRaycastDistance);
+        }
     }
 }
