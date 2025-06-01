@@ -9,12 +9,15 @@ public class NoteData
     public Vector3 position;
     public Quaternion rotation;
     public Color color;
+    public bool isVisible = true;
+    public string annotation = ""; // 单条注释
 }
 
 public class Note : MonoBehaviour
 {
     public TMP_Text contentText;        // TextMeshPro UI reference
     public Image backgroundImage;        // Note background image
+    public TMP_Text annotationText;     // 注释文本显示
     public NoteData data;               // Note data
 
     private BoxCollider noteCollider;
@@ -119,5 +122,63 @@ public class Note : MonoBehaviour
     public void Delete()
     {
         Destroy(gameObject);
+    }
+
+    // 设置便签可见性
+    public void SetVisible(bool isVisible)
+    {
+        data.isVisible = isVisible;
+        gameObject.SetActive(isVisible);
+    }
+
+    // 切换便签可见性
+    public void ToggleVisibility()
+    {
+        SetVisible(!data.isVisible);
+    }
+
+    // 设置注释
+    public void SetAnnotation(string annotationText)
+    {
+        data.annotation = annotationText;
+        UpdateAnnotationDisplay();
+    }
+
+    // 获取注释
+    public string GetAnnotation()
+    {
+        return data.annotation;
+    }
+
+    // 更新注释显示
+    private void UpdateAnnotationDisplay()
+    {
+        if (annotationText != null)
+        {
+            annotationText.text = data.annotation;
+            annotationText.gameObject.SetActive(!string.IsNullOrEmpty(data.annotation));
+        }
+    }
+
+    // 从数据中恢复便签状态（包括注释和可见性）
+    public void RestoreFromData(NoteData savedData)
+    {
+        data = savedData;
+        if (contentText != null)
+            contentText.text = data.content;
+        if (backgroundImage != null)
+            backgroundImage.color = data.color;
+        if (annotationText != null)
+            UpdateAnnotationDisplay();
+
+        // 设置位置和旋转
+        transform.position = data.position;
+        transform.rotation = data.rotation;
+
+        // 设置可见性
+        gameObject.SetActive(data.isVisible);
+
+        // 更新碰撞体
+        UpdateColliderSize();
     }
 }

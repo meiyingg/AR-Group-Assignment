@@ -20,15 +20,17 @@ public class NoteManager : MonoBehaviour
     public ARPlaneManager planeManager;    
 
     [Header("Note Properties")]
-    public GameObject notePrefab;
-
-    [Header("UI References")]
+    public GameObject notePrefab;    [Header("UI References")]
     public Canvas mainCanvas;
     public TMP_InputField noteInputField;
     public Button createButton;
     public Button cancelButton;
     public GameObject noteUI;
     public ColorPicker colorPicker;
+    
+    [Header("增强功能UI")]
+    public Button toggleVisibilityButton; // 显示/隐藏所有便签按钮
+    public TMP_InputField annotationInputField; // 注释输入框
 
     [Header("Raycast Settings")]
     public float maxRaycastDistance = 10f;
@@ -60,8 +62,9 @@ public class NoteManager : MonoBehaviour
         arCamera = Camera.main;
         noteLayerMask = 1 << 6; // 设置Notes层(Layer 6)的掩码
         Initialize();
-    }
-
+    }    // 记录所有便签是否可见
+    private bool allNotesVisible = true;
+    
     void Initialize()
     {
         if (createButton != null)
@@ -76,6 +79,13 @@ public class NoteManager : MonoBehaviour
             noteUI.SetActive(false);
         else
             DebugLogger.Instance?.AddLog("Error: noteUI not found");
+            
+        // 初始化增强功能UI
+        if (toggleVisibilityButton != null)
+        {
+            toggleVisibilityButton.onClick.AddListener(ToggleAllNotesVisibility);
+            UpdateToggleVisibilityButtonText();
+        }
 
         if (planeManager != null)
             planeManager.requestedDetectionMode = PlaneDetectionMode.Horizontal | PlaneDetectionMode.Vertical;
@@ -244,18 +254,24 @@ public class NoteManager : MonoBehaviour
         UpdateCreateButtonText("Create");
         
         DebugLogger.Instance?.AddLog($"Ready to create new note at position: {placementPosition}");
-    }
-
-    private void SaveCurrentNote()
+    }    private void SaveCurrentNote()
     {
         if (selectedNote != null && !string.IsNullOrEmpty(noteInputField.text))
         {
             selectedNote.SetContent(noteInputField.text);
             if (colorPicker != null)
                 selectedNote.SetColor(colorPicker.CurrentColor);
+                
+            // 保存注释（如果有）
+            if (annotationInputField != null && !string.IsNullOrEmpty(annotationInputField.text))
+            {
+                selectedNote.SetAnnotation(annotationInputField.text);
+                DebugLogger.Instance?.AddLog($"保存注释: {annotationInputField.text}");
+            }
+            
             DebugLogger.Instance?.AddLog($"保存笔记更改: {noteInputField.text}");
         }
-    }    public void OnCreateNoteConfirmed()
+    }public void OnCreateNoteConfirmed()
     {
         // 先检查所需组件
         if (noteInputField == null)
@@ -331,9 +347,7 @@ public class NoteManager : MonoBehaviour
         ShowNoteDetails(note);
         
         DebugLogger.Instance?.AddLog($"Selected note for editing: {note.data.content}");
-    }
-
-    private void ShowNoteDetails(Note note)
+    }    private void ShowNoteDetails(Note note)
     {
         if (noteUI != null && noteInputField != null)
         {
@@ -345,6 +359,12 @@ public class NoteManager : MonoBehaviour
             if (colorPicker != null)
             {
                 colorPicker.SetCurrentColor(note.data.color);
+            }
+            
+            // 显示注释（如果有）
+            if (annotationInputField != null)
+            {
+                annotationInputField.text = note.GetAnnotation();
             }
         }
     }
@@ -379,6 +399,36 @@ public class NoteManager : MonoBehaviour
         {
             activeNotes.Remove(note);
             note.Delete();
+        }
+    }
+
+    // 切换所有便签的可见性
+    public void ToggleAllNotesVisibility()
+    {
+        allNotesVisible = !allNotesVisible;
+        
+        foreach (Note note in activeNotes)
+        {
+            if (note != null)
+            {
+                note.SetVisible(allNotesVisible);
+            }
+        }
+        
+        UpdateToggleVisibilityButtonText();
+        DebugLogger.Instance?.AddLog($"所有便签可见性设置为: {allNotesVisible}");
+    }
+    
+    // 更新显示/隐藏按钮文本
+    private void UpdateToggleVisibilityButtonText()
+    {
+        if (toggleVisibilityButton != null)
+        {
+            TMP_Text buttonText = toggleVisibilityButton.GetComponentInChildren<TMP_Text>();
+            if (buttonText != null)
+            {
+                buttonText.text = allNotesVisible ? "Hide Notes" : "Display Notes";
+            }
         }
     }
 
