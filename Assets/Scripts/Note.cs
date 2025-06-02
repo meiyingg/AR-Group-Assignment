@@ -19,19 +19,27 @@ public class Note : MonoBehaviour
     public Image backgroundImage;        // Note background image
     public TMP_Text annotationText;     // Annotation text display
     public NoteData data;               // Note data
+    public Button hideButton; // 按钮：隐藏Note
+    public Button showIconButton; // 隐藏时显示的小icon（Button）
 
     private BoxCollider noteCollider;
     private RectTransform contentRectTransform;    private float minColliderSize = 0.1f; // Minimum collider size
     private Vector2 padding = new Vector2(0.15f, 0.15f); // Collider padding
 
+    // 记录ShowIcon原始位置参数
+    private Vector2 showIconOrigAnchorMin, showIconOrigAnchorMax, showIconOrigPivot, showIconOrigAnchoredPos;
+    private bool showIconOrigSaved = false;
+
     private void Awake()
     {
         if (data == null)
             data = new NoteData();
-          // Ensure default values
+        // Ensure default values
         data.color = Color.yellow;
         data.position = transform.position;
-        data.rotation = transform.rotation;        // Get RectTransform
+        data.rotation = transform.rotation;
+        
+        // Get RectTransform
         contentRectTransform = contentText?.GetComponent<RectTransform>();
         
         // Set up collider
@@ -41,14 +49,36 @@ public class Note : MonoBehaviour
             noteCollider = gameObject.AddComponent<BoxCollider>();
             DebugLogger.Instance?.AddLog("Added BoxCollider to Note");
         }
-          // Ensure collider is set up correctly
+        
+        // Ensure collider is set up correctly
         noteCollider.isTrigger = false;
         
         // Initialize collider size
         UpdateColliderSize();
         
+        // 按钮事件绑定
+        if (hideButton != null)
+            hideButton.onClick.AddListener(() => SetVisible(false));
+        if (showIconButton != null)
+        {
+            showIconButton.onClick.AddListener(() => SetVisible(true));
+            showIconButton.gameObject.SetActive(false); // 初始隐藏
+            // 记录原始位置参数
+            var rt = showIconButton.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                showIconOrigAnchorMin = rt.anchorMin;
+                showIconOrigAnchorMax = rt.anchorMax;
+                showIconOrigPivot = rt.pivot;
+                showIconOrigAnchoredPos = rt.anchoredPosition;
+                showIconOrigSaved = true;
+            }
+        }
+        
         DebugLogger.Instance?.AddLog($"Note initialized with collider: {noteCollider.size}");
-    }    private void OnValidate()
+    }
+
+    private void OnValidate()
     {
         // Update collider when content is modified in the editor
         UpdateColliderSize();
@@ -111,18 +141,52 @@ public class Note : MonoBehaviour
     public void Delete()
     {
         Destroy(gameObject);
-    }    // Set note visibility
+    }
+
+    // Set note visibility with fade effect
     public void SetVisible(bool isVisible)
     {
         data.isVisible = isVisible;
-        gameObject.SetActive(isVisible);
+        // 内容相关
+        if (contentText != null) contentText.gameObject.SetActive(isVisible);
+        if (backgroundImage != null) backgroundImage.gameObject.SetActive(isVisible);
+        if (annotationText != null) annotationText.gameObject.SetActive(isVisible);
+        if (hideButton != null) hideButton.gameObject.SetActive(isVisible);
+        // 小眼睛icon
+        if (showIconButton != null)
+        {
+            showIconButton.gameObject.SetActive(!isVisible);
+            var rt = showIconButton.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                if (isVisible && showIconOrigSaved)
+                {
+                    rt.anchorMin = showIconOrigAnchorMin;
+                    rt.anchorMax = showIconOrigAnchorMax;
+                    rt.pivot = showIconOrigPivot;
+                    rt.anchoredPosition = showIconOrigAnchoredPos;
+                }
+                else if (!isVisible)
+                {
+                    rt.anchorMin = new Vector2(0.5f, 0.5f);
+                    rt.anchorMax = new Vector2(0.5f, 0.5f);
+                    rt.pivot = new Vector2(0.5f, 0.5f);
+                    rt.anchoredPosition = Vector2.zero;
+                }
+            }
+        }
+        // 碰撞体
+        if (noteCollider != null)
+            noteCollider.enabled = isVisible;
     }
 
-    // Toggle note visibility
+    // Toggle note visibility with fade effect
     public void ToggleVisibility()
     {
         SetVisible(!data.isVisible);
-    }    // Set annotation
+    }
+
+    // Set annotation
     public void SetAnnotation(string annotationText)
     {
         data.annotation = annotationText;
@@ -133,7 +197,9 @@ public class Note : MonoBehaviour
     public string GetAnnotation()
     {
         return data.annotation;
-    }    // Update annotation display
+    }
+
+    // Update annotation display
     private void UpdateAnnotationDisplay()
     {
         if (annotationText != null)
@@ -141,7 +207,9 @@ public class Note : MonoBehaviour
             annotationText.text = data.annotation;
             annotationText.gameObject.SetActive(!string.IsNullOrEmpty(data.annotation));
         }
-    }    // Restore note state from data (including annotation and visibility)
+    }
+
+    // Restore note state from data (including annotation and visibility)
     public void RestoreFromData(NoteData savedData)
     {
         data = savedData;
@@ -155,7 +223,7 @@ public class Note : MonoBehaviour
         transform.rotation = data.rotation;
 
         // Set visibility
-        gameObject.SetActive(data.isVisible);
+        SetVisible(data.isVisible);
 
         // Update collider
         UpdateColliderSize();

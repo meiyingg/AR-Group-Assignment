@@ -220,8 +220,8 @@ MonoBehaviour:
   cancelButton: {fileID: 971217842}
   noteUI: {fileID: 277434957}
   colorPicker: {fileID: 1490124286}
-  toggleVisibilityButton: {fileID: 0}
-  annotationInputField: {fileID: 0}
+  toggleVisibilityButton: {fileID: 1684110644}
+  annotationInputField: {fileID: 1773497400}
   maxRaycastDistance: 10
   touchRadius: 0.1
   debugRaycast: 1
@@ -2420,7 +2420,7 @@ GameObject:
   - component: {fileID: 1236764700}
   - component: {fileID: 1236764699}
   m_Layer: 5
-  m_Name: InputField (TMP)
+  m_Name: Content_InputField (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

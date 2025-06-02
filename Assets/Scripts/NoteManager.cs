@@ -5,6 +5,7 @@ using UnityEngine.XR.ARSubsystems;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using UnityEngine.EventSystems;
 
 public class NoteManager : MonoBehaviour
 {
@@ -30,6 +31,7 @@ public class NoteManager : MonoBehaviour
       [Header("Enhanced Features UI")]
     public Button toggleVisibilityButton; // Button to show/hide all notes
     public TMP_InputField annotationInputField; // Annotation input field
+    private TMP_Text toggleVisibilityText; // Text component for the toggle button
 
     [Header("Raycast Settings")]
     public float maxRaycastDistance = 10f;
@@ -46,6 +48,9 @@ public class NoteManager : MonoBehaviour
     private static NoteManager instance;
     private UIState currentUIState = UIState.None;
 
+    // Track if all notes are visible
+    private bool allNotesVisible = true;
+
     public static NoteManager Instance
     {
         get { return instance; }
@@ -60,9 +65,8 @@ public class NoteManager : MonoBehaviour
         
         arCamera = Camera.main;
         noteLayerMask = 1 << 6; // Set Notes layer (Layer 6) mask
-        Initialize();    }    // Track if all notes are visible
-    private bool allNotesVisible = true;
-    
+        Initialize();    }
+
     void Initialize()
     {
         if (createButton != null)
@@ -77,10 +81,17 @@ public class NoteManager : MonoBehaviour
             noteUI.SetActive(false);
         else
             DebugLogger.Instance?.AddLog("Error: noteUI not found");
-              // Initialize enhanced features UI
+
+        // Initialize enhanced features UI
         if (toggleVisibilityButton != null)
         {
             toggleVisibilityButton.onClick.AddListener(ToggleAllNotesVisibility);
+            // Automatically find the text component on the button
+            toggleVisibilityText = toggleVisibilityButton.GetComponentInChildren<TMP_Text>();
+            if (toggleVisibilityText == null)
+            {
+                DebugLogger.Instance?.AddLog("Warning: No TextMeshPro text component found on toggle visibility button");
+            }
             UpdateToggleVisibilityButtonText();
         }
 
@@ -153,12 +164,29 @@ public class NoteManager : MonoBehaviour
                 List<ARRaycastHit> arHits = new List<ARRaycastHit>();
                 if (raycastManager.Raycast(touchPosition, arHits, TrackableType.Planes))
                 {
-                    placementPosition = arHits[0].pose.position;
-                    Vector3 cameraForward = arCamera.transform.forward;
-                    cameraForward.y = 0;
-                    placementRotation = cameraForward != Vector3.zero ? 
-                        Quaternion.LookRotation(cameraForward, Vector3.up) :
-                        Quaternion.identity;
+                    ARRaycastHit arHit = arHits[0];
+                    placementPosition = arHit.pose.position;
+                    
+                    // Get the normal of the detected plane
+                    Vector3 planeNormal = arHit.pose.up;
+                    
+                    // Calculate rotation based on the plane normal
+                    if (Mathf.Abs(planeNormal.y) > 0.9f) // Horizontal surface (floor/ceiling)
+                    {
+                        // For horizontal surfaces, make the note face the camera
+                        Vector3 cameraForward = arCamera.transform.forward;
+                        cameraForward.y = 0;
+                        placementRotation = cameraForward != Vector3.zero ? 
+                            Quaternion.LookRotation(cameraForward, Vector3.up) :
+                            Quaternion.identity;
+                    }
+                    else // Vertical surface (wall)
+                    {
+                        // For vertical surfaces, make the note face outward from the wall
+                        placementRotation = Quaternion.LookRotation(-planeNormal, Vector3.up);
+                    }
+                    
+                    DebugLogger.Instance?.AddLog($"Plane detected - Normal: {planeNormal}, Position: {placementPosition}");
                     ShowCreateNoteUI();
                 }
             }
@@ -402,13 +430,9 @@ public class NoteManager : MonoBehaviour
       // Update show/hide button text
     private void UpdateToggleVisibilityButtonText()
     {
-        if (toggleVisibilityButton != null)
+        if (toggleVisibilityText != null)
         {
-            TMP_Text buttonText = toggleVisibilityButton.GetComponentInChildren<TMP_Text>();
-            if (buttonText != null)
-            {
-                buttonText.text = allNotesVisible ? "Hide Notes" : "Display Notes";
-            }
+            toggleVisibilityText.text = allNotesVisible ? "Hide All Notes" : "Show All Notes";
         }
     }
 
