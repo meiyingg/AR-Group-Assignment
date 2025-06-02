@@ -21,6 +21,7 @@ public class Note : MonoBehaviour
     public NoteData data;               // Note data
     public Button hideButton; // °´Å¥£ºÒþ²ØNote
     public Button showIconButton; // Òþ²ØÊ±ÏÔÊ¾µÄÐ¡icon£¨Button£©
+    public Button deleteButton; // É¾³ý°´Å¥
 
     private BoxCollider noteCollider;
     private RectTransform contentRectTransform;    private float minColliderSize = 0.1f; // Minimum collider size
@@ -74,6 +75,8 @@ public class Note : MonoBehaviour
                 showIconOrigSaved = true;
             }
         }
+        if (deleteButton != null)
+            deleteButton.onClick.AddListener(OnDeleteButtonClicked);
         
         DebugLogger.Instance?.AddLog($"Note initialized with collider: {noteCollider.size}");
     }
@@ -152,6 +155,7 @@ public class Note : MonoBehaviour
         if (backgroundImage != null) backgroundImage.gameObject.SetActive(isVisible);
         if (annotationText != null) annotationText.gameObject.SetActive(isVisible);
         if (hideButton != null) hideButton.gameObject.SetActive(isVisible);
+        if (deleteButton != null) deleteButton.gameObject.SetActive(isVisible);
         // Ð¡ÑÛ¾¦icon
         if (showIconButton != null)
         {
@@ -227,5 +231,13 @@ public class Note : MonoBehaviour
 
         // Update collider
         UpdateColliderSize();
+    }
+
+    private void OnDeleteButtonClicked()
+    {
+        if (NoteManager.Instance != null)
+            NoteManager.Instance.DeleteNote(this);
+        else
+            Delete(); // ¶µµ×
     }
 }

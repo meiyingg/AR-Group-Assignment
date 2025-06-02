@@ -126,7 +126,24 @@ public class NoteManager : MonoBehaviour
             touchPosition = touch.position;
 
             if (touch.phase == TouchPhase.Began)
-            {                // 1. If currently editing or creating, ignore new touches
+            {
+                // 检查是否点在ShowIconButton（Tag为ShowIconButton）上
+                if (EventSystem.current != null)
+                {
+                    PointerEventData eventData = new PointerEventData(EventSystem.current);
+                    eventData.position = touch.position;
+                    var results = new List<RaycastResult>();
+                    EventSystem.current.RaycastAll(eventData, results);
+                    foreach (var r in results)
+                    {
+                        if (r.gameObject.CompareTag("ShowIconButton"))
+                        {
+                            DebugLogger.Instance?.AddLog("Clicked ShowIconButton, only trigger onClick.");
+                            return;
+                        }
+                    }
+                }
+                // 1. If currently editing or creating, ignore new touches
                 if (currentUIState != UIState.None) 
                 {
                     DebugLogger.Instance?.AddLog($"Ignoring touch - current state: {currentUIState}");

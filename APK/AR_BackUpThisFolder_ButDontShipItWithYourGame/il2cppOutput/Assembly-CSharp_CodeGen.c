@@ -78,55 +78,57 @@ extern void Note_GetAnnotation_m6053DB73A5BF3F9BD46B29D24CF662133955CDF4 (void);
 extern void Note_UpdateAnnotationDisplay_m8EC82BC9DE7B7359672CB093D4DAF5A6B910C718 (void);
 // 0x00000021 System.Void Note::RestoreFromData(NoteData)
 extern void Note_RestoreFromData_m2AF8C7B26D1364F1683FB1F8456794A40F988347 (void);
-// 0x00000022 System.Void Note::.ctor()
+// 0x00000022 System.Void Note::OnDeleteButtonClicked()
+extern void Note_OnDeleteButtonClicked_m8D2993C905E023B3262DFF0391F599EAB3907849 (void);
+// 0x00000023 System.Void Note::.ctor()
 extern void Note__ctor_m604E0FF46514DBA4F0DDAB63C417950327839F44 (void);
-// 0x00000023 System.Void Note::<Awake>b__15_0()
-extern void Note_U3CAwakeU3Eb__15_0_mAEAA235FE9A5AA79E1DDFDE10676B4F42864AF28 (void);
-// 0x00000024 System.Void Note::<Awake>b__15_1()
-extern void Note_U3CAwakeU3Eb__15_1_mE0EBE6511D5245C31F4B8684F71C991A7BE625A2 (void);
-// 0x00000025 NoteManager NoteManager::get_Instance()
+// 0x00000024 System.Void Note::<Awake>b__16_0()
+extern void Note_U3CAwakeU3Eb__16_0_mF1449405002782C5561655D6C349265484978813 (void);
+// 0x00000025 System.Void Note::<Awake>b__16_1()
+extern void Note_U3CAwakeU3Eb__16_1_m1E2B112A65D87FEC0D7F905E90CA8B230ACACCCB (void);
+// 0x00000026 NoteManager NoteManager::get_Instance()
 extern void NoteManager_get_Instance_mECDDB2CEDDB11957948D31450A46DC6FF5118660 (void);
-// 0x00000026 System.Void NoteManager::Awake()
+// 0x00000027 System.Void NoteManager::Awake()
 extern void NoteManager_Awake_mAACA07C4787482AC146BFD76B4C31248EF322814 (void);
-// 0x00000027 System.Void NoteManager::Initialize()
+// 0x00000028 System.Void NoteManager::Initialize()
 extern void NoteManager_Initialize_mECD545672E5C2A30016E18A5E893C0077C7D055B (void);
-// 0x00000028 System.Void NoteManager::Update()
+// 0x00000029 System.Void NoteManager::Update()
 extern void NoteManager_Update_mF6DAB8F2517FB82B67D0402399ADDD4FDED1036D (void);
-// 0x00000029 System.Boolean NoteManager::CheckUIClick(UnityEngine.Vector2,System.Boolean&)
+// 0x0000002A System.Boolean NoteManager::CheckUIClick(UnityEngine.Vector2,System.Boolean&)
 extern void NoteManager_CheckUIClick_m0A82E729C1D8B0ED6EEA73BCB339B2150A67F2ED (void);
-// 0x0000002A System.Void NoteManager::UpdateCreateButtonText(System.String)
+// 0x0000002B System.Void NoteManager::UpdateCreateButtonText(System.String)
 extern void NoteManager_UpdateCreateButtonText_m415AA6182FBF2237C13954278BC699963A3FA076 (void);
-// 0x0000002B System.Void NoteManager::ClearUIState()
+// 0x0000002C System.Void NoteManager::ClearUIState()
 extern void NoteManager_ClearUIState_m82BB86F13A3738596AA463B89F3212D2B3B5E10D (void);
-// 0x0000002C System.Void NoteManager::ShowCreateNoteUI()
+// 0x0000002D System.Void NoteManager::ShowCreateNoteUI()
 extern void NoteManager_ShowCreateNoteUI_m2D08C2A71B32BE4E44FF4229F6B790630265882B (void);
-// 0x0000002D System.Void NoteManager::SaveCurrentNote()
+// 0x0000002E System.Void NoteManager::SaveCurrentNote()
 extern void NoteManager_SaveCurrentNote_m638F3FB8BCA282B538B098F962C5809504BC61EE (void);
-// 0x0000002E System.Void NoteManager::OnCreateNoteConfirmed()
+// 0x0000002F System.Void NoteManager::OnCreateNoteConfirmed()
 extern void NoteManager_OnCreateNoteConfirmed_mA0623D6B8DF80437531FB93E7DB63BD4B178BB6A (void);
-// 0x0000002F System.Void NoteManager::OnCreateNoteCanceled()
+// 0x00000030 System.Void NoteManager::OnCreateNoteCanceled()
 extern void NoteManager_OnCreateNoteCanceled_m9644FB5CCF451689AD13B22E8BB5AB7BC7696971 (void);
-// 0x00000030 System.Void NoteManager::SelectNote(Note)
+// 0x00000031 System.Void NoteManager::SelectNote(Note)
 extern void NoteManager_SelectNote_mCD89420FAC5DFB4E37D30091CABDE02EEED74AC1 (void);
-// 0x00000031 System.Void NoteManager::ShowNoteDetails(Note)
+// 0x00000032 System.Void NoteManager::ShowNoteDetails(Note)
 extern void NoteManager_ShowNoteDetails_m06C207B2CCE073212391162B786C79FD31507301 (void);
-// 0x00000032 System.Void NoteManager::OnCreateOrSaveButtonClicked()
+// 0x00000033 System.Void NoteManager::OnCreateOrSaveButtonClicked()
 extern void NoteManager_OnCreateOrSaveButtonClicked_mDC23A9944EC8DB25A41DADA3A9CE02E0F98F15F8 (void);
-// 0x00000033 System.Void NoteManager::DeleteSelectedNote()
+// 0x00000034 System.Void NoteManager::DeleteSelectedNote()
 extern void NoteManager_DeleteSelectedNote_m4311D8DA9564EC6C762E1CB4E8C590C67B7E765E (void);
-// 0x00000034 System.Void NoteManager::DeleteNote(Note)
+// 0x00000035 System.Void NoteManager::DeleteNote(Note)
 extern void NoteManager_DeleteNote_m5E89ADC77384C435F035B34525CDDDA6D75C9AC1 (void);
-// 0x00000035 System.Void NoteManager::ToggleAllNotesVisibility()
+// 0x00000036 System.Void NoteManager::ToggleAllNotesVisibility()
 extern void NoteManager_ToggleAllNotesVisibility_m74A6FC51BC8DEE8ED0E1B92E1BBE594C1DADE297 (void);
-// 0x00000036 System.Void NoteManager::UpdateToggleVisibilityButtonText()
+// 0x00000037 System.Void NoteManager::UpdateToggleVisibilityButtonText()
 extern void NoteManager_UpdateToggleVisibilityButtonText_m478184C2560A05A2FBA96952A64BC44471652819 (void);
-// 0x00000037 System.Boolean NoteManager::IsPointerOverUI(UnityEngine.Vector2)
+// 0x00000038 System.Boolean NoteManager::IsPointerOverUI(UnityEngine.Vector2)
 extern void NoteManager_IsPointerOverUI_mF20B27C7C1A2BE0E79FBB476D466114E70F72CF0 (void);
-// 0x00000038 System.Void NoteManager::OnDrawGizmos()
+// 0x00000039 System.Void NoteManager::OnDrawGizmos()
 extern void NoteManager_OnDrawGizmos_m38E1E52615D459147F962B9F9670D3390873AD6E (void);
-// 0x00000039 System.Void NoteManager::.ctor()
+// 0x0000003A System.Void NoteManager::.ctor()
 extern void NoteManager__ctor_m1A781717BCE967587A3ADEB58175F352DB844B83 (void);
-static Il2CppMethodPointer s_methodPointers[57] = 
+static Il2CppMethodPointer s_methodPointers[58] = 
 {
 	ColorPicker_Start_m1A26DE8C1AD5C3693AE8944B00046A92614BA83F,
 	ColorPicker_InitializeColorButtons_mB7184BAE66B5F3E969A51F34D50AF8FE6FFC6D83,
@@ -161,9 +163,10 @@ static Il2CppMethodPointer s_methodPointers[57] =
 	Note_GetAnnotation_m6053DB73A5BF3F9BD46B29D24CF662133955CDF4,
 	Note_UpdateAnnotationDisplay_m8EC82BC9DE7B7359672CB093D4DAF5A6B910C718,
 	Note_RestoreFromData_m2AF8C7B26D1364F1683FB1F8456794A40F988347,
+	Note_OnDeleteButtonClicked_m8D2993C905E023B3262DFF0391F599EAB3907849,
 	Note__ctor_m604E0FF46514DBA4F0DDAB63C417950327839F44,
-	Note_U3CAwakeU3Eb__15_0_mAEAA235FE9A5AA79E1DDFDE10676B4F42864AF28,
-	Note_U3CAwakeU3Eb__15_1_mE0EBE6511D5245C31F4B8684F71C991A7BE625A2,
+	Note_U3CAwakeU3Eb__16_0_mF1449405002782C5561655D6C349265484978813,
+	Note_U3CAwakeU3Eb__16_1_m1E2B112A65D87FEC0D7F905E90CA8B230ACACCCB,
 	NoteManager_get_Instance_mECDDB2CEDDB11957948D31450A46DC6FF5118660,
 	NoteManager_Awake_mAACA07C4787482AC146BFD76B4C31248EF322814,
 	NoteManager_Initialize_mECD545672E5C2A30016E18A5E893C0077C7D055B,
@@ -186,7 +189,7 @@ static Il2CppMethodPointer s_methodPointers[57] =
 	NoteManager_OnDrawGizmos_m38E1E52615D459147F962B9F9670D3390873AD6E,
 	NoteManager__ctor_m1A781717BCE967587A3ADEB58175F352DB844B83,
 };
-static const int32_t s_InvokerIndices[57] = 
+static const int32_t s_InvokerIndices[58] = 
 {
 	4421,
 	4421,
@@ -224,6 +227,7 @@ static const int32_t s_InvokerIndices[57] =
 	4421,
 	4421,
 	4421,
+	4421,
 	6940,
 	4421,
 	4421,
@@ -250,7 +254,7 @@ IL2CPP_EXTERN_C const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule;
 const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule = 
 {
 	"Assembly-CSharp.dll",
-	57,
+	58,
 	s_methodPointers,
 	0,
 	NULL,
