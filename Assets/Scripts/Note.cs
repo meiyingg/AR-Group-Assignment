@@ -1,6 +1,17 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System;
+using System.Collections.Generic;
+
+[System.Serializable]
+public class TodoItem
+{
+    public string content;        // 任务内容
+    public bool isCompleted;      // 完成状态
+    public DateTime dueDate;      // 截止日期（可选）
+    public int priority;          // 优先级（1-3）
+}
 
 [System.Serializable]
 public class NoteData
@@ -11,6 +22,8 @@ public class NoteData
     public Color color;
     public bool isVisible = true;
     public string annotation = ""; // Single annotation
+    public bool isTodoList = false;  // 是否是todo list
+    public List<TodoItem> todoItems = new List<TodoItem>();  // 任务列表
 }
 
 public class Note : MonoBehaviour
@@ -22,6 +35,15 @@ public class Note : MonoBehaviour
     public Button hideButton; // 按钮：隐藏Note
     public Button showIconButton; // 隐藏时显示的小icon（Button）
     public Button deleteButton; // 删除按钮
+    public GameObject todoListContainer;  // 任务列表容器
+    public GameObject todoItemPrefab;     // 任务项预制体
+    public Button addTodoButton;          // 添加任务按钮
+    public GameObject newTodoInputPanel;        // 新建任务输入面板
+    public TMP_InputField newTodoInput;         // 新建任务输入框
+    public TMP_Dropdown newTodoPriorityDropdown;// 新建任务优先级Dropdown
+    public Button confirmAddButton;             // 确认添加按钮
+    public Button cancelAddButton;              // 取消添加按钮
+    public GameObject todoListScrollView; // 指向TodoListScroll_Scroll View根对象
 
     private BoxCollider noteCollider;
     private RectTransform contentRectTransform;    private float minColliderSize = 0.1f; // Minimum collider size
@@ -77,6 +99,31 @@ public class Note : MonoBehaviour
         }
         if (deleteButton != null)
             deleteButton.onClick.AddListener(OnDeleteButtonClicked);
+        
+        // 初始化todo list相关组件
+        if (addTodoButton != null)
+            addTodoButton.onClick.AddListener(OnAddTodoButtonClicked);
+        if (confirmAddButton != null)
+            confirmAddButton.onClick.AddListener(OnConfirmAddTodo);
+        if (cancelAddButton != null)
+            cancelAddButton.onClick.AddListener(OnCancelAddTodo);
+            
+        // 初始隐藏todo list相关UI
+        if (todoListContainer != null)
+            todoListContainer.SetActive(false);
+        if (newTodoInputPanel != null)
+            newTodoInputPanel.SetActive(false);
+        if (newTodoInput != null)
+            newTodoInput.gameObject.SetActive(false);
+        if (newTodoPriorityDropdown != null)
+            newTodoPriorityDropdown.gameObject.SetActive(false);
+        if (confirmAddButton != null)
+            confirmAddButton.gameObject.SetActive(false);
+        if (cancelAddButton != null)
+            cancelAddButton.gameObject.SetActive(false);
+        
+        // 刷新任务列表
+        RefreshTodoList();
         
         DebugLogger.Instance?.AddLog($"Note initialized with collider: {noteCollider.size}");
     }
@@ -156,6 +203,15 @@ public class Note : MonoBehaviour
         if (annotationText != null) annotationText.gameObject.SetActive(isVisible);
         if (hideButton != null) hideButton.gameObject.SetActive(isVisible);
         if (deleteButton != null) deleteButton.gameObject.SetActive(isVisible);
+        if (todoListScrollView != null) todoListScrollView.SetActive(isVisible);
+        if (todoListContainer != null) todoListContainer.SetActive(isVisible);
+        if (addTodoButton != null) addTodoButton.gameObject.SetActive(isVisible);
+        // 只在隐藏时隐藏newTodoInputPanel
+        if (!isVisible && newTodoInputPanel != null) newTodoInputPanel.SetActive(false);
+        if (newTodoInput != null) newTodoInput.gameObject.SetActive(isVisible);
+        if (newTodoPriorityDropdown != null) newTodoPriorityDropdown.gameObject.SetActive(isVisible);
+        if (confirmAddButton != null) confirmAddButton.gameObject.SetActive(isVisible);
+        if (cancelAddButton != null) cancelAddButton.gameObject.SetActive(isVisible);
         // 小眼睛icon
         if (showIconButton != null)
         {
@@ -231,6 +287,11 @@ public class Note : MonoBehaviour
 
         // Update collider
         UpdateColliderSize();
+
+        // 恢复todo list状态
+        data.isTodoList = savedData.isTodoList;
+        data.todoItems = savedData.todoItems;
+        UpdateNoteType();
     }
 
     private void OnDeleteButtonClicked()
@@ -239,5 +300,145 @@ public class Note : MonoBehaviour
             NoteManager.Instance.DeleteNote(this);
         else
             Delete(); // 兜底
+    }
+
+    // 更新Note类型显示
+    private void UpdateNoteType()
+    {
+        if (todoListContainer != null)
+            todoListContainer.SetActive(data.isTodoList);
+        
+        // 如果是todo list，显示任务列表
+        if (data.isTodoList)
+        {
+            RefreshTodoList();
+        }
+    }
+
+    // 刷新任务列表
+    private void RefreshTodoList()
+    {
+        if (todoListContainer == null || todoItemPrefab == null)
+            return;
+
+        // 按优先级排序（高=1, 中=2, 低=3）
+        data.todoItems.Sort((a, b) => a.priority.CompareTo(b.priority));
+
+        // 安全地销毁现有任务项
+        List<GameObject> toDestroy = new List<GameObject>();
+        foreach (Transform child in todoListContainer.transform)
+        {
+            toDestroy.Add(child.gameObject);
+        }
+        foreach (var go in toDestroy)
+        {
+            Destroy(go);
+        }
+
+        // 创建新的任务项
+        foreach (var item in data.todoItems)
+        {
+            GameObject todoItemObj = Instantiate(todoItemPrefab, todoListContainer.transform);
+            TodoItemUI todoItemUI = todoItemObj.GetComponent<TodoItemUI>();
+            if (todoItemUI != null)
+            {
+                todoItemUI.Initialize(item, this);
+            }
+        }
+    }
+
+    // 添加新任务按钮点击事件
+    private void OnAddTodoButtonClicked()
+    {
+        if (newTodoInputPanel != null)
+            newTodoInputPanel.SetActive(true);
+        if (newTodoInput != null)
+        {
+            newTodoInput.gameObject.SetActive(true);
+            newTodoInput.text = "";
+            newTodoInput.ActivateInputField();
+        }
+        if (newTodoPriorityDropdown != null)
+        {
+            newTodoPriorityDropdown.gameObject.SetActive(true);
+            newTodoPriorityDropdown.value = 1; // 默认中优先级
+        }
+        if (confirmAddButton != null)
+            confirmAddButton.gameObject.SetActive(true);
+        if (cancelAddButton != null)
+            cancelAddButton.gameObject.SetActive(true);
+    }
+
+    // 确认添加任务
+    private void OnConfirmAddTodo()
+    {
+        if (newTodoInput != null && !string.IsNullOrEmpty(newTodoInput.text))
+        {
+            int priority = 2; // 默认中
+            if (newTodoPriorityDropdown != null)
+                priority = newTodoPriorityDropdown.value + 1; // 0=高,1=中,2=低
+            TodoItem newItem = new TodoItem
+            {
+                content = newTodoInput.text,
+                isCompleted = false,
+                priority = priority
+            };
+            data.todoItems.Add(newItem);
+            // 先隐藏输入面板再刷新列表，防止UI事件冲突
+            if (newTodoInputPanel != null) newTodoInputPanel.SetActive(false);
+            RefreshTodoList();
+        }
+        // 隐藏输入UI
+        if (newTodoInput != null)
+            newTodoInput.gameObject.SetActive(false);
+        if (newTodoPriorityDropdown != null)
+            newTodoPriorityDropdown.gameObject.SetActive(false);
+        if (confirmAddButton != null)
+            confirmAddButton.gameObject.SetActive(false);
+        if (cancelAddButton != null)
+            cancelAddButton.gameObject.SetActive(false);
+    }
+
+    // 取消添加任务
+    private void OnCancelAddTodo()
+    {
+        if (newTodoInputPanel != null)
+            newTodoInputPanel.SetActive(false);
+        if (newTodoInput != null)
+            newTodoInput.gameObject.SetActive(false);
+        if (newTodoPriorityDropdown != null)
+            newTodoPriorityDropdown.gameObject.SetActive(false);
+        if (confirmAddButton != null)
+            confirmAddButton.gameObject.SetActive(false);
+        if (cancelAddButton != null)
+            cancelAddButton.gameObject.SetActive(false);
+    }
+
+    // 更新任务状态
+    public void UpdateTodoItem(TodoItem item, bool isCompleted)
+    {
+        item.isCompleted = isCompleted;
+        RefreshTodoList();
+    }
+
+    // 删除任务
+    public void DeleteTodoItem(TodoItem item)
+    {
+        data.todoItems.Remove(item);
+        RefreshTodoList();
+    }
+
+    // 编辑任务内容
+    public void EditTodoItem(TodoItem item, string newContent)
+    {
+        item.content = newContent;
+        RefreshTodoList();
+    }
+
+    // 更新任务优先级
+    public void UpdateTodoItemPriority(TodoItem item, int priority)
+    {
+        item.priority = priority;
+        RefreshTodoList();
     }
 }

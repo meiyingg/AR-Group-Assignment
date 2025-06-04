@@ -170,14 +170,32 @@ public class NoteManager : MonoBehaviour
                         SelectNote(note);
                         return;
                     }
-                }                // 3. Check for main UI click
+                }
+                // 3. Check for main UI click
                 if (CheckUIClick(touchPosition, out bool hitMainUI) && hitMainUI)
                 {
                     DebugLogger.Instance?.AddLog("Main UI clicked, skipping raycast");
                     return;
                 }
 
-                // 4. If no other interaction, try to create new Note
+                // 4. 在尝试新建Note前判断是否点在TodoUI层的UI上
+                if (EventSystem.current != null)
+                {
+                    PointerEventData eventData = new PointerEventData(EventSystem.current);
+                    eventData.position = touch.position;
+                    var results = new List<RaycastResult>();
+                    EventSystem.current.RaycastAll(eventData, results);
+                    foreach (var r in results)
+                    {
+                        if (r.gameObject.layer == LayerMask.NameToLayer("TodoUI"))
+                        {
+                            DebugLogger.Instance?.AddLog("Clicked TodoUI layer UI, skip AR raycast.");
+                            return;
+                        }
+                    }
+                }
+
+                // 5. If no other interaction, try to create new Note
                 List<ARRaycastHit> arHits = new List<ARRaycastHit>();
                 if (raycastManager.Raycast(touchPosition, arHits, TrackableType.Planes))
                 {
