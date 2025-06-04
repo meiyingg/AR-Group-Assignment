@@ -30567,6 +30567,16 @@ IL_000d:
 		return L_2;
 	}
 }
+// System.String UnityEngine.LayerMask::LayerToName(System.Int32)
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LayerMask_LayerToName_mC7A5797D35F5307031F317741226727B307F34D0 (int32_t ___layer0, const RuntimeMethod* method) 
+{
+	typedef String_t* (*LayerMask_LayerToName_mC7A5797D35F5307031F317741226727B307F34D0_ftn) (int32_t);
+	static LayerMask_LayerToName_mC7A5797D35F5307031F317741226727B307F34D0_ftn _il2cpp_icall_func;
+	if (!_il2cpp_icall_func)
+	_il2cpp_icall_func = (LayerMask_LayerToName_mC7A5797D35F5307031F317741226727B307F34D0_ftn)il2cpp_codegen_resolve_icall ("UnityEngine.LayerMask::LayerToName(System.Int32)");
+	String_t* icallRetVal = _il2cpp_icall_func(___layer0);
+	return icallRetVal;
+}
 // System.Int32 UnityEngine.LayerMask::NameToLayer(System.String)
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t LayerMask_NameToLayer_m2764C530EDA9EC3226A36E3FD43E020B413AF139 (String_t* ___layerName0, const RuntimeMethod* method) 
 {

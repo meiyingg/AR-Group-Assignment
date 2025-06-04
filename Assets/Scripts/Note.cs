@@ -24,6 +24,7 @@ public class NoteData
     public string annotation = ""; // Single annotation
     public bool isTodoList = false;  // 是否是todo list
     public List<TodoItem> todoItems = new List<TodoItem>();  // 任务列表
+    public int backgroundIndex = 0;  // 背景图片索引
 }
 
 public class Note : MonoBehaviour
@@ -44,6 +45,10 @@ public class Note : MonoBehaviour
     public Button confirmAddButton;             // 确认添加按钮
     public Button cancelAddButton;              // 取消添加按钮
     public GameObject todoListScrollView; // 指向TodoListScroll_Scroll View根对象
+    public GameObject backgroundSelectPanel;  // 背景选择面板
+    public Transform backgroundButtonContainer;  // 背景按钮容器
+    public GameObject backgroundButtonPrefab;  // 背景按钮预制体
+    public Button changeBackgroundButton;  // 更换背景按钮
 
     private BoxCollider noteCollider;
     private RectTransform contentRectTransform;    private float minColliderSize = 0.1f; // Minimum collider size
@@ -52,6 +57,8 @@ public class Note : MonoBehaviour
     // 记录ShowIcon原始位置参数
     private Vector2 showIconOrigAnchorMin, showIconOrigAnchorMax, showIconOrigPivot, showIconOrigAnchoredPos;
     private bool showIconOrigSaved = false;
+
+    private List<Sprite> backgroundSprites = new List<Sprite>();
 
     private void Awake()
     {
@@ -126,6 +133,15 @@ public class Note : MonoBehaviour
         RefreshTodoList();
         
         DebugLogger.Instance?.AddLog($"Note initialized with collider: {noteCollider.size}");
+        
+        // 初始化背景选择相关
+        if (changeBackgroundButton != null)
+            changeBackgroundButton.onClick.AddListener(OnChangeBackgroundButtonClicked);
+        if (backgroundSelectPanel != null)
+            backgroundSelectPanel.SetActive(false);
+            
+        // 加载背景图片
+        LoadBackgroundSprites();
     }
 
     private void OnValidate()
@@ -137,23 +153,21 @@ public class Note : MonoBehaviour
     private void UpdateColliderSize()
     {
         if (contentRectTransform != null && noteCollider != null)
-        {            // Get Canvas and background image RectTransform
+        {
             RectTransform bgRectTransform = backgroundImage?.GetComponent<RectTransform>();
-            
             if (bgRectTransform != null)
             {
-                // Use background image size as reference
-                Vector2 bgSize = bgRectTransform.rect.size;
-                float worldWidth = bgRectTransform.lossyScale.x * bgSize.x;
-                float worldHeight = bgRectTransform.lossyScale.y * bgSize.y;
-                  // Add padding to make it easier to click
+                Vector3[] worldCorners = new Vector3[4];
+                bgRectTransform.GetWorldCorners(worldCorners);
+                float worldWidth = Vector3.Distance(worldCorners[0], worldCorners[3]);
+                float worldHeight = Vector3.Distance(worldCorners[0], worldCorners[1]);
+                // 缩小75%
+                worldWidth *= 0.75f;
+                worldHeight *= 0.75f;
                 worldWidth = Mathf.Max(worldWidth + padding.x, minColliderSize);
                 worldHeight = Mathf.Max(worldHeight + padding.y, minColliderSize);
-                
-                // Set collider size, add depth for raycast detection
                 Vector3 newSize = new Vector3(worldWidth, worldHeight, 0.05f);
-                Vector3 newCenter = new Vector3(0, 0, -0.025f); // Center collider, slightly offset forward
-                
+                Vector3 newCenter = Vector3.zero; // 无偏移
                 if (noteCollider.size != newSize || noteCollider.center != newCenter)
                 {
                     noteCollider.size = newSize;
@@ -162,10 +176,10 @@ public class Note : MonoBehaviour
                 }
             }
             else
-            {                // If no background image, use fixed size
+            {
                 Vector3 defaultSize = new Vector3(0.5f, 0.5f, 0.05f);
                 noteCollider.size = defaultSize;
-                noteCollider.center = new Vector3(0, 0, -0.025f);
+                noteCollider.center = Vector3.zero;
                 DebugLogger.Instance?.AddLog($"Using default collider size: {defaultSize}");
             }
         }
@@ -200,7 +214,11 @@ public class Note : MonoBehaviour
         // 内容相关
         if (contentText != null) contentText.gameObject.SetActive(isVisible);
         if (backgroundImage != null) backgroundImage.gameObject.SetActive(isVisible);
-        if (annotationText != null) annotationText.gameObject.SetActive(isVisible);
+        if (annotationText != null)
+        {
+            bool showAnno = isVisible && !string.IsNullOrEmpty(data.annotation);
+            annotationText.gameObject.SetActive(showAnno);
+        }
         if (hideButton != null) hideButton.gameObject.SetActive(isVisible);
         if (deleteButton != null) deleteButton.gameObject.SetActive(isVisible);
         if (todoListScrollView != null) todoListScrollView.SetActive(isVisible);
@@ -212,6 +230,10 @@ public class Note : MonoBehaviour
         if (newTodoPriorityDropdown != null) newTodoPriorityDropdown.gameObject.SetActive(isVisible);
         if (confirmAddButton != null) confirmAddButton.gameObject.SetActive(isVisible);
         if (cancelAddButton != null) cancelAddButton.gameObject.SetActive(isVisible);
+        // 新增：隐藏/显示背景选择面板
+        if (backgroundSelectPanel != null) backgroundSelectPanel.SetActive(isVisible);
+        // 新增：隐藏/显示ChangeBackgroundButton
+        if (changeBackgroundButton != null) changeBackgroundButton.gameObject.SetActive(isVisible);
         // 小眼睛icon
         if (showIconButton != null)
         {
@@ -292,6 +314,12 @@ public class Note : MonoBehaviour
         data.isTodoList = savedData.isTodoList;
         data.todoItems = savedData.todoItems;
         UpdateNoteType();
+
+        // 恢复背景图片
+        if (backgroundSprites.Count > 0 && savedData.backgroundIndex < backgroundSprites.Count)
+        {
+            backgroundImage.sprite = backgroundSprites[savedData.backgroundIndex];
+        }
     }
 
     private void OnDeleteButtonClicked()
@@ -440,5 +468,58 @@ public class Note : MonoBehaviour
     {
         item.priority = priority;
         RefreshTodoList();
+    }
+
+    private void LoadBackgroundSprites()
+    {
+        backgroundSprites.Clear();
+        Sprite[] sprites = Resources.LoadAll<Sprite>("NoteBackgrounds");
+        backgroundSprites.AddRange(sprites);
+        // 如果有背景图片，设置初始背景
+        if (backgroundSprites.Count > 0 && data.backgroundIndex < backgroundSprites.Count)
+        {
+            backgroundImage.sprite = backgroundSprites[data.backgroundIndex];
+        }
+    }
+
+    private void PopulateBackgroundButtons()
+    {
+        // 清除现有按钮
+        foreach (Transform child in backgroundButtonContainer)
+        {
+            Destroy(child.gameObject);
+        }
+        // 创建新按钮
+        for (int i = 0; i < backgroundSprites.Count; i++)
+        {
+            int index = i; // 闭包
+            GameObject btnObj = Instantiate(backgroundButtonPrefab, backgroundButtonContainer);
+            btnObj.GetComponent<Image>().sprite = backgroundSprites[i];
+            btnObj.GetComponent<Button>().onClick.RemoveAllListeners();
+            btnObj.GetComponent<Button>().onClick.AddListener(() => OnSelectBackground(index));
+        }
+    }
+
+    public void OnChangeBackgroundButtonClicked()
+    {
+        if (backgroundSelectPanel != null)
+        {
+            bool isActive = backgroundSelectPanel.activeSelf;
+            backgroundSelectPanel.SetActive(!isActive);
+            if (!isActive)
+            {
+                PopulateBackgroundButtons();
+            }
+        }
+    }
+
+    public void OnSelectBackground(int index)
+    {
+        if (index >= 0 && index < backgroundSprites.Count)
+        {
+            backgroundImage.sprite = backgroundSprites[index];
+            data.backgroundIndex = index;
+        }
+        backgroundSelectPanel.SetActive(false);
     }
 }

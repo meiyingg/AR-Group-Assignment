@@ -66,7 +66,7 @@ public class NoteManager : MonoBehaviour
         arCamera = Camera.main;
         noteLayerMask = 1 << 6; // Set Notes layer (Layer 6) mask
         Initialize();    }
-
+    
     void Initialize()
     {
         if (createButton != null)
@@ -82,7 +82,7 @@ public class NoteManager : MonoBehaviour
         else
             DebugLogger.Instance?.AddLog("Error: noteUI not found");
 
-        // Initialize enhanced features UI
+              // Initialize enhanced features UI
         if (toggleVisibilityButton != null)
         {
             toggleVisibilityButton.onClick.AddListener(ToggleAllNotesVisibility);
@@ -134,11 +134,19 @@ public class NoteManager : MonoBehaviour
                     eventData.position = touch.position;
                     var results = new List<RaycastResult>();
                     EventSystem.current.RaycastAll(eventData, results);
+                    int noteBgLayer = LayerMask.NameToLayer("NoteBackgroundUI");
+                    int todoUILayer = LayerMask.NameToLayer("TodoUI");
                     foreach (var r in results)
                     {
                         if (r.gameObject.CompareTag("ShowIconButton"))
                         {
                             DebugLogger.Instance?.AddLog("Clicked ShowIconButton, only trigger onClick.");
+                            return;
+                        }
+                        // 拦截NoteBackgroundUI和TodoUI层
+                        if (r.gameObject.layer == noteBgLayer || r.gameObject.layer == todoUILayer)
+                        {
+                            DebugLogger.Instance?.AddLog($"Clicked UI on layer: {LayerMask.LayerToName(r.gameObject.layer)}, skip AR/Note logic.");
                             return;
                         }
                     }
@@ -178,23 +186,6 @@ public class NoteManager : MonoBehaviour
                     return;
                 }
 
-                // 4. 在尝试新建Note前判断是否点在TodoUI层的UI上
-                if (EventSystem.current != null)
-                {
-                    PointerEventData eventData = new PointerEventData(EventSystem.current);
-                    eventData.position = touch.position;
-                    var results = new List<RaycastResult>();
-                    EventSystem.current.RaycastAll(eventData, results);
-                    foreach (var r in results)
-                    {
-                        if (r.gameObject.layer == LayerMask.NameToLayer("TodoUI"))
-                        {
-                            DebugLogger.Instance?.AddLog("Clicked TodoUI layer UI, skip AR raycast.");
-                            return;
-                        }
-                    }
-                }
-
                 // 5. If no other interaction, try to create new Note
                 List<ARRaycastHit> arHits = new List<ARRaycastHit>();
                 if (raycastManager.Raycast(touchPosition, arHits, TrackableType.Planes))
@@ -209,11 +200,11 @@ public class NoteManager : MonoBehaviour
                     if (Mathf.Abs(planeNormal.y) > 0.9f) // Horizontal surface (floor/ceiling)
                     {
                         // For horizontal surfaces, make the note face the camera
-                        Vector3 cameraForward = arCamera.transform.forward;
-                        cameraForward.y = 0;
-                        placementRotation = cameraForward != Vector3.zero ? 
-                            Quaternion.LookRotation(cameraForward, Vector3.up) :
-                            Quaternion.identity;
+                    Vector3 cameraForward = arCamera.transform.forward;
+                    cameraForward.y = 0;
+                    placementRotation = cameraForward != Vector3.zero ? 
+                        Quaternion.LookRotation(cameraForward, Vector3.up) :
+                        Quaternion.identity;
                     }
                     else // Vertical surface (wall)
                     {

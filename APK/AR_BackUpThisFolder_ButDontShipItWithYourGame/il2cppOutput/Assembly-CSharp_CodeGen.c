@@ -100,77 +100,89 @@ extern void Note_DeleteTodoItem_mAD4F308013C9BB7ABABA91309C2C9A479EF68DEA (void)
 extern void Note_EditTodoItem_mF7AF6FCF58D3427DECFFFB2129A0D5D0F9B7EFD3 (void);
 // 0x0000002C System.Void Note::UpdateTodoItemPriority(TodoItem,System.Int32)
 extern void Note_UpdateTodoItemPriority_m72F0B367D8F4960D788EAE0293C7A640995AA6B1 (void);
-// 0x0000002D System.Void Note::.ctor()
+// 0x0000002D System.Void Note::LoadBackgroundSprites()
+extern void Note_LoadBackgroundSprites_m91D9A17F316140EE7ED25DB8127F62635980AA2B (void);
+// 0x0000002E System.Void Note::PopulateBackgroundButtons()
+extern void Note_PopulateBackgroundButtons_mA626C8A8BBD3CD0E46644BD75C8F21D53A334DA8 (void);
+// 0x0000002F System.Void Note::OnChangeBackgroundButtonClicked()
+extern void Note_OnChangeBackgroundButtonClicked_mB31C120E16320104CEEC4FD1A01ACAC3F2F21E7C (void);
+// 0x00000030 System.Void Note::OnSelectBackground(System.Int32)
+extern void Note_OnSelectBackground_mB90D9435FA9C4AD4EB96AA97017B37341C94A990 (void);
+// 0x00000031 System.Void Note::.ctor()
 extern void Note__ctor_m604E0FF46514DBA4F0DDAB63C417950327839F44 (void);
-// 0x0000002E System.Void Note::<Awake>b__25_0()
-extern void Note_U3CAwakeU3Eb__25_0_m8E87AECEFEB75516929BEF2E98B222566E3B4A4B (void);
-// 0x0000002F System.Void Note::<Awake>b__25_1()
-extern void Note_U3CAwakeU3Eb__25_1_m58578E0FC29CEC49E3FC02F16B84DDD631905091 (void);
-// 0x00000030 System.Void Note/<>c::.cctor()
+// 0x00000032 System.Void Note::<Awake>b__30_0()
+extern void Note_U3CAwakeU3Eb__30_0_m503419C6FA11A1B9218B2B06742530240F7F1E42 (void);
+// 0x00000033 System.Void Note::<Awake>b__30_1()
+extern void Note_U3CAwakeU3Eb__30_1_m253BCCBE85556B2B00757C03B0BD91AA93EDC3CC (void);
+// 0x00000034 System.Void Note/<>c::.cctor()
 extern void U3CU3Ec__cctor_mFDB015D7BDB74705D5F5D0112D2D670394FC55C9 (void);
-// 0x00000031 System.Void Note/<>c::.ctor()
+// 0x00000035 System.Void Note/<>c::.ctor()
 extern void U3CU3Ec__ctor_mCE3DD2E77199BFE550731792E53A7497A0C638BF (void);
-// 0x00000032 System.Int32 Note/<>c::<RefreshTodoList>b__39_0(TodoItem,TodoItem)
-extern void U3CU3Ec_U3CRefreshTodoListU3Eb__39_0_mB4A7B718CD44ECDEB02074B2DF0F6217013E9C8D (void);
-// 0x00000033 NoteManager NoteManager::get_Instance()
+// 0x00000036 System.Int32 Note/<>c::<RefreshTodoList>b__44_0(TodoItem,TodoItem)
+extern void U3CU3Ec_U3CRefreshTodoListU3Eb__44_0_m2011DDDF8347A1F49F15A33DC56A5378A7E1C3D5 (void);
+// 0x00000037 System.Void Note/<>c__DisplayClass53_0::.ctor()
+extern void U3CU3Ec__DisplayClass53_0__ctor_mE36F3B5EADC66B3773CC02BF174B290CFB24F1C3 (void);
+// 0x00000038 System.Void Note/<>c__DisplayClass53_0::<PopulateBackgroundButtons>b__0()
+extern void U3CU3Ec__DisplayClass53_0_U3CPopulateBackgroundButtonsU3Eb__0_mD7468C6CEEC6D7C1E043B7DB4612865C1C8F4239 (void);
+// 0x00000039 NoteManager NoteManager::get_Instance()
 extern void NoteManager_get_Instance_mECDDB2CEDDB11957948D31450A46DC6FF5118660 (void);
-// 0x00000034 System.Void NoteManager::Awake()
+// 0x0000003A System.Void NoteManager::Awake()
 extern void NoteManager_Awake_mAACA07C4787482AC146BFD76B4C31248EF322814 (void);
-// 0x00000035 System.Void NoteManager::Initialize()
+// 0x0000003B System.Void NoteManager::Initialize()
 extern void NoteManager_Initialize_mECD545672E5C2A30016E18A5E893C0077C7D055B (void);
-// 0x00000036 System.Void NoteManager::Update()
+// 0x0000003C System.Void NoteManager::Update()
 extern void NoteManager_Update_mF6DAB8F2517FB82B67D0402399ADDD4FDED1036D (void);
-// 0x00000037 System.Boolean NoteManager::CheckUIClick(UnityEngine.Vector2,System.Boolean&)
+// 0x0000003D System.Boolean NoteManager::CheckUIClick(UnityEngine.Vector2,System.Boolean&)
 extern void NoteManager_CheckUIClick_m0A82E729C1D8B0ED6EEA73BCB339B2150A67F2ED (void);
-// 0x00000038 System.Void NoteManager::UpdateCreateButtonText(System.String)
+// 0x0000003E System.Void NoteManager::UpdateCreateButtonText(System.String)
 extern void NoteManager_UpdateCreateButtonText_m415AA6182FBF2237C13954278BC699963A3FA076 (void);
-// 0x00000039 System.Void NoteManager::ClearUIState()
+// 0x0000003F System.Void NoteManager::ClearUIState()
 extern void NoteManager_ClearUIState_m82BB86F13A3738596AA463B89F3212D2B3B5E10D (void);
-// 0x0000003A System.Void NoteManager::ShowCreateNoteUI()
+// 0x00000040 System.Void NoteManager::ShowCreateNoteUI()
 extern void NoteManager_ShowCreateNoteUI_m2D08C2A71B32BE4E44FF4229F6B790630265882B (void);
-// 0x0000003B System.Void NoteManager::SaveCurrentNote()
+// 0x00000041 System.Void NoteManager::SaveCurrentNote()
 extern void NoteManager_SaveCurrentNote_m638F3FB8BCA282B538B098F962C5809504BC61EE (void);
-// 0x0000003C System.Void NoteManager::OnCreateNoteConfirmed()
+// 0x00000042 System.Void NoteManager::OnCreateNoteConfirmed()
 extern void NoteManager_OnCreateNoteConfirmed_mA0623D6B8DF80437531FB93E7DB63BD4B178BB6A (void);
-// 0x0000003D System.Void NoteManager::OnCreateNoteCanceled()
+// 0x00000043 System.Void NoteManager::OnCreateNoteCanceled()
 extern void NoteManager_OnCreateNoteCanceled_m9644FB5CCF451689AD13B22E8BB5AB7BC7696971 (void);
-// 0x0000003E System.Void NoteManager::SelectNote(Note)
+// 0x00000044 System.Void NoteManager::SelectNote(Note)
 extern void NoteManager_SelectNote_mCD89420FAC5DFB4E37D30091CABDE02EEED74AC1 (void);
-// 0x0000003F System.Void NoteManager::ShowNoteDetails(Note)
+// 0x00000045 System.Void NoteManager::ShowNoteDetails(Note)
 extern void NoteManager_ShowNoteDetails_m06C207B2CCE073212391162B786C79FD31507301 (void);
-// 0x00000040 System.Void NoteManager::OnCreateOrSaveButtonClicked()
+// 0x00000046 System.Void NoteManager::OnCreateOrSaveButtonClicked()
 extern void NoteManager_OnCreateOrSaveButtonClicked_mDC23A9944EC8DB25A41DADA3A9CE02E0F98F15F8 (void);
-// 0x00000041 System.Void NoteManager::DeleteSelectedNote()
+// 0x00000047 System.Void NoteManager::DeleteSelectedNote()
 extern void NoteManager_DeleteSelectedNote_m4311D8DA9564EC6C762E1CB4E8C590C67B7E765E (void);
-// 0x00000042 System.Void NoteManager::DeleteNote(Note)
+// 0x00000048 System.Void NoteManager::DeleteNote(Note)
 extern void NoteManager_DeleteNote_m5E89ADC77384C435F035B34525CDDDA6D75C9AC1 (void);
-// 0x00000043 System.Void NoteManager::ToggleAllNotesVisibility()
+// 0x00000049 System.Void NoteManager::ToggleAllNotesVisibility()
 extern void NoteManager_ToggleAllNotesVisibility_m74A6FC51BC8DEE8ED0E1B92E1BBE594C1DADE297 (void);
-// 0x00000044 System.Void NoteManager::UpdateToggleVisibilityButtonText()
+// 0x0000004A System.Void NoteManager::UpdateToggleVisibilityButtonText()
 extern void NoteManager_UpdateToggleVisibilityButtonText_m478184C2560A05A2FBA96952A64BC44471652819 (void);
-// 0x00000045 System.Boolean NoteManager::IsPointerOverUI(UnityEngine.Vector2)
+// 0x0000004B System.Boolean NoteManager::IsPointerOverUI(UnityEngine.Vector2)
 extern void NoteManager_IsPointerOverUI_mF20B27C7C1A2BE0E79FBB476D466114E70F72CF0 (void);
-// 0x00000046 System.Void NoteManager::OnDrawGizmos()
+// 0x0000004C System.Void NoteManager::OnDrawGizmos()
 extern void NoteManager_OnDrawGizmos_m38E1E52615D459147F962B9F9670D3390873AD6E (void);
-// 0x00000047 System.Void NoteManager::.ctor()
+// 0x0000004D System.Void NoteManager::.ctor()
 extern void NoteManager__ctor_m1A781717BCE967587A3ADEB58175F352DB844B83 (void);
-// 0x00000048 System.Void TodoItemUI::Awake()
+// 0x0000004E System.Void TodoItemUI::Awake()
 extern void TodoItemUI_Awake_m72552D8156E525854BA03687E7AFB8F9F85FF05E (void);
-// 0x00000049 System.Void TodoItemUI::Initialize(TodoItem,Note)
+// 0x0000004F System.Void TodoItemUI::Initialize(TodoItem,Note)
 extern void TodoItemUI_Initialize_m2A10F188BE643E924AC51A7299D77766FBD17A43 (void);
-// 0x0000004A System.Void TodoItemUI::UpdatePriorityColor(System.Int32)
+// 0x00000050 System.Void TodoItemUI::UpdatePriorityColor(System.Int32)
 extern void TodoItemUI_UpdatePriorityColor_m80C565DD28C803C988A8C7EE596EFA258ABBD7BE (void);
-// 0x0000004B System.Void TodoItemUI::UpdateUI()
+// 0x00000051 System.Void TodoItemUI::UpdateUI()
 extern void TodoItemUI_UpdateUI_m4DC040C522A1A856BD1FD4D5A701C716CF7AE6CC (void);
-// 0x0000004C System.Void TodoItemUI::OnCompleteToggleChanged(System.Boolean)
+// 0x00000052 System.Void TodoItemUI::OnCompleteToggleChanged(System.Boolean)
 extern void TodoItemUI_OnCompleteToggleChanged_m780F771E71596DAD4A07151A1380534F753C5FE4 (void);
-// 0x0000004D System.Void TodoItemUI::OnDeleteButtonClicked()
+// 0x00000053 System.Void TodoItemUI::OnDeleteButtonClicked()
 extern void TodoItemUI_OnDeleteButtonClicked_mC0ABD0F008D5B2C8832C2EB882C6EECF07DEFEB9 (void);
-// 0x0000004E System.Void TodoItemUI::OnPriorityChanged(System.Int32)
+// 0x00000054 System.Void TodoItemUI::OnPriorityChanged(System.Int32)
 extern void TodoItemUI_OnPriorityChanged_m1925230A697CBCD402083C46FEAF8E11B79BB5DD (void);
-// 0x0000004F System.Void TodoItemUI::.ctor()
+// 0x00000055 System.Void TodoItemUI::.ctor()
 extern void TodoItemUI__ctor_m344E476F265EBD47EC64BD1B4B63C624906DF0E0 (void);
-static Il2CppMethodPointer s_methodPointers[79] = 
+static Il2CppMethodPointer s_methodPointers[85] = 
 {
 	ColorPicker_Start_m1A26DE8C1AD5C3693AE8944B00046A92614BA83F,
 	ColorPicker_InitializeColorButtons_mB7184BAE66B5F3E969A51F34D50AF8FE6FFC6D83,
@@ -216,12 +228,18 @@ static Il2CppMethodPointer s_methodPointers[79] =
 	Note_DeleteTodoItem_mAD4F308013C9BB7ABABA91309C2C9A479EF68DEA,
 	Note_EditTodoItem_mF7AF6FCF58D3427DECFFFB2129A0D5D0F9B7EFD3,
 	Note_UpdateTodoItemPriority_m72F0B367D8F4960D788EAE0293C7A640995AA6B1,
+	Note_LoadBackgroundSprites_m91D9A17F316140EE7ED25DB8127F62635980AA2B,
+	Note_PopulateBackgroundButtons_mA626C8A8BBD3CD0E46644BD75C8F21D53A334DA8,
+	Note_OnChangeBackgroundButtonClicked_mB31C120E16320104CEEC4FD1A01ACAC3F2F21E7C,
+	Note_OnSelectBackground_mB90D9435FA9C4AD4EB96AA97017B37341C94A990,
 	Note__ctor_m604E0FF46514DBA4F0DDAB63C417950327839F44,
-	Note_U3CAwakeU3Eb__25_0_m8E87AECEFEB75516929BEF2E98B222566E3B4A4B,
-	Note_U3CAwakeU3Eb__25_1_m58578E0FC29CEC49E3FC02F16B84DDD631905091,
+	Note_U3CAwakeU3Eb__30_0_m503419C6FA11A1B9218B2B06742530240F7F1E42,
+	Note_U3CAwakeU3Eb__30_1_m253BCCBE85556B2B00757C03B0BD91AA93EDC3CC,
 	U3CU3Ec__cctor_mFDB015D7BDB74705D5F5D0112D2D670394FC55C9,
 	U3CU3Ec__ctor_mCE3DD2E77199BFE550731792E53A7497A0C638BF,
-	U3CU3Ec_U3CRefreshTodoListU3Eb__39_0_mB4A7B718CD44ECDEB02074B2DF0F6217013E9C8D,
+	U3CU3Ec_U3CRefreshTodoListU3Eb__44_0_m2011DDDF8347A1F49F15A33DC56A5378A7E1C3D5,
+	U3CU3Ec__DisplayClass53_0__ctor_mE36F3B5EADC66B3773CC02BF174B290CFB24F1C3,
+	U3CU3Ec__DisplayClass53_0_U3CPopulateBackgroundButtonsU3Eb__0_mD7468C6CEEC6D7C1E043B7DB4612865C1C8F4239,
 	NoteManager_get_Instance_mECDDB2CEDDB11957948D31450A46DC6FF5118660,
 	NoteManager_Awake_mAACA07C4787482AC146BFD76B4C31248EF322814,
 	NoteManager_Initialize_mECD545672E5C2A30016E18A5E893C0077C7D055B,
@@ -252,7 +270,7 @@ static Il2CppMethodPointer s_methodPointers[79] =
 	TodoItemUI_OnPriorityChanged_m1925230A697CBCD402083C46FEAF8E11B79BB5DD,
 	TodoItemUI__ctor_m344E476F265EBD47EC64BD1B4B63C624906DF0E0,
 };
-static const int32_t s_InvokerIndices[79] = 
+static const int32_t s_InvokerIndices[85] = 
 {
 	4421,
 	4421,
@@ -301,9 +319,15 @@ static const int32_t s_InvokerIndices[79] =
 	4421,
 	4421,
 	4421,
+	3553,
+	4421,
+	4421,
+	4421,
 	6969,
 	4421,
 	1304,
+	4421,
+	4421,
 	6940,
 	4421,
 	4421,
@@ -338,7 +362,7 @@ IL2CPP_EXTERN_C const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule;
 const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule = 
 {
 	"Assembly-CSharp.dll",
-	79,
+	85,
 	s_methodPointers,
 	0,
 	NULL,
